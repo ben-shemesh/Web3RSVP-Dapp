@@ -5,15 +5,52 @@ pragma solidity ^0.8.9;
 import "hardhat/console.sol";
 
 contract Web3RSVP {
-    struct CreateEvent {
+        struct CreateEvent {
         bytes32 eventId;
         string eventDataCID;
         address eventOwner;
-        uint256 eventTimeStamp;
-        uint256 deposite;
-        address [] confirmedRSVP;
-        address [] claimedRSVP;
+        uint256 eventTimestamp;
+        uint256 deposit;
+        uint256 maxCapacity;
+        address[] confirmedRSVPs;
+        address[] claimedRSVPs;
         bool paidOut;
     }
-    mapping (bytes32 => CreateEvent) public idToEvent;
+
+    mapping(bytes32 => CreateEvent) public idToEvent;
+
+    function createNewEvent(
+        uint256 eventTimestamp,
+        uint256 deposit,
+        uint256 maxCapacity,
+        string calldata eventDataCID
+    ) external {
+        // generate an eventID based on other things passed in to generate a hash
+        bytes32 eventId = keccak256(
+            abi.encodePacked(
+                msg.sender,
+                address(this),
+                eventTimestamp,
+                deposit,
+                maxCapacity
+            )
+        );
+
+        address[] memory confirmedRSVPs;
+        address[] memory claimedRSVPs;
+
+
+        // this creates a new CreateEvent struct and adds it to the idToEvent mapping
+        idToEvent[eventId] = CreateEvent(
+            eventId,
+            eventDataCID,
+            msg.sender,
+            eventTimestamp,
+            deposit,
+            maxCapacity,
+            confirmedRSVPs,
+            claimedRSVPs,
+            false
+        );
+    }
 }
